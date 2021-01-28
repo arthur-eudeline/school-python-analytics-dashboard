@@ -3,17 +3,26 @@ import plotly.express as px
 import dash_html_components as html
 import dash_core_components as dcc
 import pandas as pd
+import dash.dependencies as dd
+
+# Evite les erreurs d'imports circulaires
+import plotly.validator_cache
+import plotly.graph_objects
+
+fileContent = open('../include/france-regions.json')
+geoJson = json.load(fileContent)
 
 
-def build(df):
-    fileContent = open('../include/france-regions.json')
-    geoJson = json.load(fileContent)
-
+def getFig(df: pd.DataFrame, regionLists: list = None):
     # Renomme les régions pour rendre compatible avec celles de Google Analytics
     renameRegionNames(geoJson)
 
     # Isole la some transactions par région
     data = pd.DataFrame(df[['ga:region', 'ga:transactions']].groupby(['ga:region']).sum())
+
+    # Si on filtre par region, on ne garde que les indexes du df correspondant à la liste de `regionLists`
+    if regionLists is not None and len(regionLists) > 0:
+        data = data[data.index.isin(regionLists)]
 
     mapFigure = px.choropleth_mapbox(
         data,
@@ -41,10 +50,21 @@ def build(df):
         featureidkey="properties.nom"
     )
 
-    mapFigure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    return mapFigure
 
+
+# Génère le html pour la map et le selector
+def build(df):
     return html.Div([
-        dcc.Graph(id='transactions-per-region-map', figure=mapFigure)
+        dcc.Dropdown(
+            id="map-region-selector",
+            options=buildDropdownOptions(geoJson),
+            multi=True
+        ),
+        dcc.Graph(
+            id='transactions-per-region-map',
+            figure={}
+        )
     ])
 
 
@@ -68,5 +88,36 @@ def renameRegionNames(geoJSON: dict):
     # Parcours le GeoJSON et remplace les noms de régions incorrects
     # par les bons noms de région
     for item in geoJSON['features']:
-        if(item['properties']['nom'] in overrideNames.keys()):
+        if (item['properties']['nom'] in overrideNames.keys()):
             item['properties']['nom'] = overrideNames[item['properties']['nom']]
+
+
+# Recupère les noms des régions depuis le geoJSON
+def getRegionsNames(geoJSON: dict):
+    renameRegionNames(geoJSON)
+    output = []
+    for item in geoJSON['features']:
+        output.append(item['properties']['nom'])
+    return output
+
+
+# Génère la liste de régions pour la dropdown
+def buildDropdownOptions(geoJSON: dict):
+    output = []
+    for item in getRegionsNames(geoJSON):
+        output.append({
+            'label': item,
+            'value': item
+        })
+    return output
+
+
+def output():
+    return dd.Output(
+        component_id="transactions-per-region-map",
+        component_property="figure"
+    )
+
+
+def update(df: pd.DataFrame, regionsLists):
+    return getFig(df, regionsLists)
