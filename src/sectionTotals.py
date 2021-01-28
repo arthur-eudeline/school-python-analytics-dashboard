@@ -6,6 +6,9 @@ import utils
 
 
 # Calcule les différents totaux en fonction de la date de début et de fin
+from src import htmlComponents
+
+
 def getTotals(df: pd.DataFrame, startDate=None, endDate=None):
     # Reformate les date de fin pour les utiliser dans df.loc
     startDate = utils.convertDate(startDate, df, True)
@@ -34,34 +37,36 @@ def getTotals(df: pd.DataFrame, startDate=None, endDate=None):
 # Génère les éléments HTML
 def build(df: pd.DataFrame):
     totals = getTotals(df)
-    return html.Div([
-        html.H1("Analyse analytics"),
-        html.H2("Total utilisateurs"),
-        html.P(
-            totals[0],
+    content = htmlComponents.totalCardsWrapper([
+        htmlComponents.totalCard(
+            label="Total utilisateurs",
+            value=totals[0],
             id="total-users"
         ),
-        html.H2("Total sessions"),
-        html.P(
-            totals[1],
+        htmlComponents.totalCard(
+            label="Total sessions",
+            value=totals[1],
             id="total-sessions"
         ),
-        html.H2("Total transactions"),
-        html.P(
-            totals[2],
+        htmlComponents.totalCard(
+            label="Total transactions",
+            value=totals[2],
             id="total-transactions"
         ),
-        html.H2("Chiffre d'affaires total"),
-        html.P(
-            totals[3],
+        htmlComponents.totalCard(
+            label="Chiffre d'affaire total",
+            value=totals[3],
             id="total-revenues"
         ),
-        html.H2("Taux de conversion total"),
-        html.P(
-            totals[4],
+        htmlComponents.totalCard(
+            label="Taux de conversion",
+            value=totals[4],
+            suffix="%",
             id="total-conversion"
         ),
     ])
+
+    return html.Div([content], className="row")
 
 
 # Outputs à utiliser pour le @app.callback

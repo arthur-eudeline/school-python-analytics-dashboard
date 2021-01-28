@@ -9,6 +9,8 @@ import dash.dependencies as dd
 import plotly.validator_cache
 import plotly.graph_objects
 
+from src import htmlComponents
+
 fileContent = open('../include/france-regions.json')
 geoJson = json.load(fileContent)
 
@@ -35,12 +37,13 @@ def getFig(df: pd.DataFrame, regionLists: list = None):
             [1.0, "rgb(9, 132, 227)"]
         ],
         mapbox_style="carto-positron",
-        zoom=3,
+        zoom=4,
         # Centre par défaut sur la France
         center={
             "lat": 46.71109,
             "lon": 1.7191036
         },
+        height=600,
         opacity=0.75,
         # Légende
         labels={
@@ -55,17 +58,21 @@ def getFig(df: pd.DataFrame, regionLists: list = None):
 
 # Génère le html pour la map et le selector
 def build(df):
-    return html.Div([
-        dcc.Dropdown(
-            id="map-region-selector",
-            options=buildDropdownOptions(geoJson),
-            multi=True
-        ),
-        dcc.Graph(
-            id='transactions-per-region-map',
-            figure={}
+    return html.Div(
+        className="row",
+        children=htmlComponents.mapCard(
+            title="Nombre de transaction par région en France",
+            dropDown=dcc.Dropdown(
+                id="map-region-selector",
+                options=buildDropdownOptions(geoJson),
+                multi=True
+            ),
+            map=dcc.Graph(
+                id='transactions-per-region-map',
+                figure={}
+            )
         )
-    ])
+    )
 
 
 # Réécrit les noms de Régions de France qui diffèrent

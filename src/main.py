@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 import dash as dash
 import dash_html_components as html
 import pandas as pd
@@ -20,7 +22,10 @@ df = pd.read_csv(
 minDate = df.index.min()
 maxDate = df.index.max()
 
-app = dash.Dash(__name__)
+app = dash.Dash(
+    __name__,
+    assets_folder='../assets'
+)
 
 
 # Callback pour mettre à jour les graphiques et les totaux
@@ -52,18 +57,26 @@ def onDropdownChange(options):
     return sectionMapGraph.update(df, options)
 
 
-app.layout = html.Div([
-    dcc.DatePickerRange(
-        id='date-picker',
-        min_date_allowed=minDate,
-        max_date_allowed=maxDate,
-        start_date=minDate,
-        end_date=maxDate,
-    ),
-    sectionTotals.build(df),
-    sectionEvolutionGraphs.build(df),
-    sectionMapGraph.build(df)
-])
+app.layout = html.Div(
+    [
+        html.Div([
+            dcc.DatePickerRange(
+                id='date-picker',
+                min_date_allowed=minDate,
+                max_date_allowed=pd.to_datetime(maxDate) + pd.DateOffset(days=1),
+                start_date=minDate,
+                end_date=maxDate,
+                display_format="DD/MM/YYYY",
+                end_date_id="end-date-el",
+                start_date_id="start-date-el"
+            ),
+        ], className="datepicker-wrapper"),
+        sectionTotals.build(df),
+        sectionEvolutionGraphs.build(df),
+        sectionMapGraph.build(df)
+    ],
+    className="container-fluid"
+)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
