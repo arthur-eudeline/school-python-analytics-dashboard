@@ -3,22 +3,15 @@ import dash_core_components as dcc
 import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output
+import utils
 
 
 # Génère les graphiques d'évolution grâce à une date de début,
 # une date de fin et le dataframe
 def getFig(df: pd.DataFrame, startDate=None, endDate=None):
-    if startDate is None:
-        startDate = df.index.min()
-
-    if endDate is None:
-        endDate = df.index.max()
-
     # Reformate les date de fin pour les utiliser dans df.loc
-    startDate = str(startDate).split(" ")[0]
-    startDate = str(startDate).split("T")[0]
-    endDate = str(endDate).split(" ")[0]
-    endDate = str(endDate).split("T")[0]
+    startDate = utils.convertDate(startDate, df, True)
+    endDate = utils.convertDate(endDate, df, False)
 
     # Evite les erreurs axe same-length car on fait l'indexing par
     # date après avoir fait la requête

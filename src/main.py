@@ -22,15 +22,19 @@ maxDate = df.index.max()
 
 app = dash.Dash(__name__)
 
+
 @app.callback(
-    sectionEvolutionGraphs.output(),
+    sectionEvolutionGraphs.output()
+    + sectionTotals.output(),
     [
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date")
     ]
 )
 def onDatePickerChange(startDate, endDate):
-    return sectionEvolutionGraphs.update(df, startDate, endDate)
+    return \
+        sectionEvolutionGraphs.update(df, startDate, endDate) \
+        + sectionTotals.update(df, startDate, endDate)
 
 
 app.layout = html.Div([
