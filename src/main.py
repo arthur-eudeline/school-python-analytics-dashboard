@@ -1,6 +1,8 @@
 import dash as dash
 import dash_html_components as html
 import pandas as pd
+import dash_core_components as dcc
+from dash.dependencies import Input, Output
 
 import sectionTotals
 import sectionEvolutionGraphs
@@ -14,9 +16,31 @@ df = pd.read_csv(
     parse_dates=True
 )
 
+# Dates limites pour le dateRangePicker
+minDate = df.index.min()
+maxDate = df.index.max()
+
 app = dash.Dash(__name__)
 
+@app.callback(
+    sectionEvolutionGraphs.output(),
+    [
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date")
+    ]
+)
+def onDatePickerChange(startDate, endDate):
+    return sectionEvolutionGraphs.update(df, startDate, endDate)
+
+
 app.layout = html.Div([
+    dcc.DatePickerRange(
+        id='date-picker',
+        min_date_allowed=minDate,
+        max_date_allowed=maxDate,
+        start_date=minDate,
+        end_date=maxDate,
+    ),
     sectionTotals.build(df),
     sectionEvolutionGraphs.build(df),
     sectionMapGraph.build(df)
