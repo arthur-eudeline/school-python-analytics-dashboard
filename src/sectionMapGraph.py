@@ -78,6 +78,13 @@ def build(df):
 # Réécrit les noms de Régions de France qui diffèrent
 # des noms de régions utilisés par Google Maps
 def renameRegionNames(geoJSON: dict):
+    # Parcours le GeoJSON et remplace les noms de régions incorrects
+    # par les bons noms de région
+    for item in geoJSON['features']:
+        item['properties']['nom'] = renameRegionName(item['properties']['nom'])
+
+
+def renameRegionName(regionName: str):
     # Map où :
     # - key = l'occurence GeoJSON à remplacer
     # - value = la valeur à remplacer
@@ -92,11 +99,9 @@ def renameRegionNames(geoJSON: dict):
         "Corse": "Corsica"
     }
 
-    # Parcours le GeoJSON et remplace les noms de régions incorrects
-    # par les bons noms de région
-    for item in geoJSON['features']:
-        if (item['properties']['nom'] in overrideNames.keys()):
-            item['properties']['nom'] = overrideNames[item['properties']['nom']]
+    if (regionName in overrideNames.keys()):
+        regionName = overrideNames[regionName]
+    return regionName
 
 
 # Recupère les noms des régions depuis le geoJSON
@@ -111,12 +116,12 @@ def getRegionsNames(geoJSON: dict):
 # Génère la liste de régions pour la dropdown
 def buildDropdownOptions(geoJSON: dict):
     output = []
-    for item in getRegionsNames(geoJSON):
+    for item in geoJSON['features']:
         output.append({
-            'label': item,
-            'value': item
+            'label': item['properties']['nom'],
+            'value': renameRegionName(item['properties']['nom'])
         })
-    return output
+    return sorted(output, key=lambda el: el['label'])
 
 
 def output():
