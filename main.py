@@ -6,12 +6,12 @@ import pandas as pd
 import dash_core_components as dcc
 from dash.dependencies import Input
 
-import sectionTotals
-import sectionEvolutionGraphs
-import sectionMapGraph
+from src import sectionTotals
+from src import sectionEvolutionGraphs
+from src import sectionMapGraph
 
 df = pd.read_csv(
-    '../include/tp-google-analytics.tsv',
+    'include/tp-google-analytics.tsv',
     sep='\t',
     encoding="utf16",
     index_col='ga:date',
@@ -24,7 +24,7 @@ maxDate = df.index.max()
 
 app = dash.Dash(
     __name__,
-    assets_folder='../assets'
+    assets_folder='assets/'
 )
 
 

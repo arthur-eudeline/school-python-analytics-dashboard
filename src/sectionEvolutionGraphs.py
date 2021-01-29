@@ -3,7 +3,7 @@ import dash_core_components as dcc
 import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output
-import utils
+from src import utils
 
 
 # Génère les graphiques d'évolution grâce à une date de début,

@@ -2,13 +2,10 @@ import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output
 
-import utils
-
-
-# Calcule les différents totaux en fonction de la date de début et de fin
+from src import utils
 from src import htmlComponents
 
-
+# Calcule les différents totaux en fonction de la date de début et de fin
 def getTotals(df: pd.DataFrame, startDate=None, endDate=None):
     # Reformate les date de fin pour les utiliser dans df.loc
     startDate = utils.convertDate(startDate, df, True)

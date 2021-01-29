@@ -11,7 +11,7 @@ import plotly.graph_objects
 
 from src import htmlComponents
 
-fileContent = open('../include/france-regions.json')
+fileContent = open('include/france-regions.json')
 geoJson = json.load(fileContent)
 
 
